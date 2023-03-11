@@ -25,25 +25,20 @@ public class AuthController {
 	private UserDetailsService userDetailsService;
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@PostMapping("/login")
-	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request)
-	{
+	public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) {
 		this.authenticate(request.getUsername(), request.getPassword());
 		UserDetails userDetails = this.userDetailsService.loadUserByUsername(request.getUsername());
 		String token = this.jwtTokenHelper.generateToken(userDetails);
 		JwtAuthResponse response = new JwtAuthResponse();
 		response.setToken(token);
-		return new ResponseEntity<JwtAuthResponse>(response,HttpStatus.OK);
-		
-		
+		return new ResponseEntity<JwtAuthResponse>(response, HttpStatus.OK);
 	}
-	
-	private void authenticate(String username, String password)
-	{
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
-		
+
+	private void authenticate(String username, String password) {
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
+				password);
 		this.authenticationManager.authenticate(authenticationToken);
-		
 	}
 }

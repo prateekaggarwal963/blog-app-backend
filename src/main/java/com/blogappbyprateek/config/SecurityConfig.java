@@ -32,65 +32,33 @@ public class SecurityConfig {
 
 //	@Autowired
 //	private CustomUserDetailService customUserDetailService;
-	
+
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 	@Autowired
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-//	@Bean
-//	public UserDetailsService userDetailsService() {
-//		//return new CustomUserDetailService();
-//		InMemoryUserDetailsManager detailsManager = new InMemoryUserDetailsManager();
-//		UserDetails user = User.withUsername("prateek").password("prateek").passwordEncoder(s->sspasswordEncoder().encode(s)).roles("ADMIN").build();
-//		detailsManager.createUser(user);
-//		return detailsManager;
-//	}
-
 	@SuppressWarnings("deprecation")
 	@Bean
-	 SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		
-		http.csrf().disable().httpBasic()
-		.and().exceptionHandling().authenticationEntryPoint(this.jwtAuthenticationEntryPoint)
-		.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeHttpRequests().requestMatchers("/api/v1/auth/login").permitAll().anyRequest().authenticated();
-		
-		
-		
-		http.addFilterBefore(this.jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class);
+		http.csrf().disable().httpBasic().and().exceptionHandling()
+				.authenticationEntryPoint(this.jwtAuthenticationEntryPoint).and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeHttpRequests()
+				.requestMatchers("/api/v1/auth/login").permitAll().anyRequest().authenticated();
 
-
-
+		http.addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
-
 	}
 
-	@Bean
-	public WebSecurityCustomizer webSecurityCustomizer() {
-
-		return null;
-	}
+//	@Bean
+//	public WebSecurityCustomizer webSecurityCustomizer() {
+//		return null;
+//	}
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
-		//return super.authenticationManagerBean();
+		// return super.authenticationManagerBean();
 	}
-
-//	@Bean
-//	public DaoAuthenticationProvider authenticationProvider() {
-//		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//
-//		authProvider.setUserDetailsService(userDetailsService());
-//		authProvider.setPasswordEncoder(passwordEncoder());
-//
-//		return authProvider;
-//	}
-
-//	@Bean
-//	public BCryptPasswordEncoder sspasswordEncoder() {
-//		return new BCryptPasswordEncoder();
-//	}
-
 }

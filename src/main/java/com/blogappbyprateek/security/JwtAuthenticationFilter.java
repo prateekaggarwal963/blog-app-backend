@@ -3,14 +3,10 @@ package com.blogappbyprateek.security;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,16 +17,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	
-
-	@Autowired
-	private SecurityUseDetilService securityUseDetilService;
-
 	@Autowired
 	private JwtTokenHelper jwtTokenHelper;
+	
+	@Autowired
+	private UserDetailsService detailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -47,8 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		if(requestToken!=null && requestToken.startsWith("Bearer"))
 		{
 			token = requestToken.substring(7);
+			System.out.println("token --> " + token);
 			try {
 				username=this.jwtTokenHelper.getUserNameFromToken(token);
+				log.info("username, {}", username);
 			}catch(IllegalArgumentException e)
 			{
 				System.out.println("Unable to get Jwt Token");
@@ -67,7 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 		//2. once we get token ,now validate
 		if(username!=null && SecurityContextHolder.getContext().getAuthentication()==null)
 		{
-			UserDetails userDetails = (UserDetails) this.securityUseDetilService.userDetailsService();
+			UserDetails userDetails = detailsService.loadUserByUsername(username);
 			if(this.jwtTokenHelper.validateToken(token, userDetails))
 			{
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
