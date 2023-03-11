@@ -1,8 +1,13 @@
 package com.blogappbyprateek.payloads;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@NoArgsConstructor
 public class JwtAuthResponse {
-private String token;
+
+	@Getter
+	@Setter
+	private String token;
 }

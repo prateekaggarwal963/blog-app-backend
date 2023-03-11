@@ -14,61 +14,56 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JwtTokenHelper {
-	public static final long JWT_TOKEN_VALIDITY=5*60*60;
-	private String secret="jwtTokenKey";
-	
-	//retrieve user name from jwt token
-	public String getUserNameFromToken(String token)
-	{
-		return getClaimFromToken(token,Claims::getSubject);
+	public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
+	private String secret = "jwtTokenKey";
+
+	// retrieve user name from jwt token
+	public String getUserNameFromToken(String token) {
+		String claims = getClaimFromToken(token, Claims::getSubject);
+
+		return getClaimFromToken(token, Claims::getSubject);
 	}
-	
-	//retrieve expiration date from jwt token
-	public Date getExpirationDateFromToken(String token)
-	{
+
+	// retrieve expiration date from jwt token
+	public Date getExpirationDateFromToken(String token) {
 		return getClaimFromToken(token, Claims::getExpiration);
 	}
 
-	//get claims from token
-	private <T>T getClaimFromToken(String token, Function<Claims,T> claimsResolver) {
-		// TODO Auto-generated method stub
-		return null;
+	// get claims from token
+	private <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+		final Claims claims = getAllClaimsFromToken(token);
+		return claimsResolver.apply(claims);
 	}
-	
-	//get all claims from token
-	//for retreiving any information from token we nedd secret key
-	private Claims getAllClaimsFromToken(String token)
-	{
+
+	// get all claims from token
+	// for retreiving any information from token we nedd secret key
+	private Claims getAllClaimsFromToken(String token) {
 		return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 	}
-	
-	//check if the token has expired
-	private Boolean isTokenExpired(String token)
-	{
-		final Date expiration=getExpirationDateFromToken(token);
+
+	// check if the token has expired
+	private Boolean isTokenExpired(String token) {
+		final Date expiration = getExpirationDateFromToken(token);
 		return expiration.before(new Date());
 	}
-	
-	//generate token from user
-	public String generateToken(UserDetails userDetails )
-	{
+
+	// generate token from user
+	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		return doGenerateToken(claims,userDetails.getUsername());
+		return doGenerateToken(claims, userDetails.getUsername());
 	}
-	
-	//validate token
-	public Boolean validateToken(String token, UserDetails userDetails)
-	{
+
+	// validate token
+	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = getUserNameFromToken(token);
-		return (username.equals(userDetails.getUsername())&&!isTokenExpired(token));
+		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
-	
-	//compaction of the jwt to a URL safe string
+
+	// compaction of the jwt to a URL safe string
 	private String doGenerateToken(Map<String, Object> claims, String username) {
 		return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY *100))
+				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 100))
 				.signWith(SignatureAlgorithm.HS512, secret).compact();
 	}
-	
 
 }

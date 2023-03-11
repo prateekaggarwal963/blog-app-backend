@@ -1,10 +1,18 @@
 package com.blogappbyprateek.payloads;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@NoArgsConstructor
 public class JwtAuthRequest {
+	
+	@Getter
+	@Setter
 	private String username;
+	
+	@Getter
+	@Setter
 	private String password;
 
 }
